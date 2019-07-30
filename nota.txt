@@ -1,0 +1,5 @@
+la conexion a la base de datos esta en la carpeta php archivo conexion.php
+----------------------------------------------- 
+posdata el framework que estoy trabajando actualmente es LegoBox... es opensource
+
+perdon por enviarlo tarde pero se me acabo la hora de la comida :)
