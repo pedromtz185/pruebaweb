@@ -11,6 +11,7 @@ $conexion=conexion();
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="js/funciones.js"></script>
 
     <title></title>
   </head>
@@ -46,16 +47,26 @@ $conexion=conexion();
                             $sql="SELECT * FROM categorias ";
                               $result=mysqli_query($conexion,$sql);
                               while($ver=mysqli_fetch_row($result)){
+                                $datos=
+                                     preg_replace('/[\x00-\x1F\x7F]/u', '\n', $ver[0])
+                                     //$ver[0]
+                                     ."||".
+                                     preg_replace('/[\x00-\x1F\x7F]/u', '\n', $ver[1])
+                                     //$ver[0]
+                                     ."||".
+                                     preg_replace('/[\x00-\x1F\x7F]/u', '\n', $ver[2])
+                                     //$ver[18]
+                                     ;
                              ?>
                             <tr>
                               <td scope="row" ><?php echo $ver[0] ?></td>
                               <td><?php echo $ver[1] ?></td>
                               <td><?php echo $ver[2] ?></td>
                               <td>
-                                <a href="php/updatecategoria.php?id_catergoria=<?php echo $ver[0];?>" class="btn btn-primary glyphicon glyphicon-eye-open"></a>
+                                <button class="btn btn-info " data-toggle="modal" data-target="#modalEdicion" onclick="agregaform('<?php echo $datos ?>')">Editar</button>
                               </td>
                               <td>
-                                <a href="php/deletecategoria.php?id_catergoria=<?php echo $ver[0];?>" class="btn btn-danger glyphicon glyphicon-eye-open"></a>
+                                <a href="php/deletecategoria.php?id_catergoria=<?php echo $ver[0];?>" class="btn btn-danger glyphicon glyphicon-eye-open">Eliminar</a>
                               </td>
                             </tr>
                             <?php
@@ -95,6 +106,30 @@ $conexion=conexion();
       </div>
     </div>
 
+    <div class="modal fade"  id="modalEdicion"  tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                    <div class="modal-body">
+                        <form id= "real">
+                          <div class="form-group">
+                            <div class="" style="display:none">
+                            <input  class="form-control" readonly name="id_categoriax" id="id_categoriax"></input>
+                          </div>
+                          <label for="">Nombre</label>
+                            <input  class="form-control" name="nombrecategoriax" id="nombrecategoriax"></input>
+                          </div>
+                          <div class="form-group">
+                            <label for="">Descripción</label>
+                            <input  class="form-control" name="actualizardescripcionx" id="actualizardescripcionx"></input>
+                          </div>
+                          <span class="btn  btn btn-primary glyphicon glyphicon-refresh" id="btn" data-toggle="tooltip" data-placement="top" title="xxx" > Actualizar</span>
+                          <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                        </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
   </body>
 </html>
@@ -104,6 +139,7 @@ $conexion=conexion();
 
    $(document).ready(function(){
         $("#btnenviar").click(function(){
+          if($('#nombrecategoria').val() !="" && $('#descripcioncategoria').val() !=""){
             var nombrecategoria=$("#nombrecategoria").val();
             var descripcioncategoria=$("#descripcioncategoria").val();
             $.ajax({
@@ -115,12 +151,34 @@ $conexion=conexion();
                 },
                success:function(data){
                 location.reload();
-                // alert(data);
                  $("#nombrecategoria").val('');
                  $("#descripcioncategoria").val('');
                }
             });
+          }else {
+            alert("Favor de llenar todos los campos");
+          }
         });
     });
+
+    $(document).ready(function(){
+         $("#btn").click(function(){
+             var id_categoriax=$("#id_categoriax").val();
+             var nombrecategoriax=$("#nombrecategoriax").val();
+             var actualizardescripcionx=$("#actualizardescripcionx").val();
+             $.ajax({
+                 url:'php/uptcategoria.php',
+                 method:'POST',
+                 data:{
+                     id_categoriax:id_categoriax,
+                     nombrecategoriax:nombrecategoriax,
+                     actualizardescripcionx:actualizardescripcionx
+                 },
+                success:function(data){
+                 location.reload();
+                }
+             });
+         });
+     });
 
    </script>

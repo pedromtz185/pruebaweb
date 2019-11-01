@@ -11,6 +11,7 @@ $conexion=conexion();
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="js/funciones1.js"></script>
 
     <title></title>
   </head>
@@ -49,13 +50,32 @@ $conexion=conexion();
                                          productos.id_categoria,
                                          productos.nombreproducto,
                                          productos.descripcionproducto,
-                                         categorias.id_categoria,
+                                         categorias.id_categoria as categoria1,
                                          categorias.nombrecategoria,
                                          categorias.descripcioncategoria
                                          FROM productos
                                          INNER JOIN categorias ON categorias.id_categoria = productos.id_categoria";
                               $result=mysqli_query($conexion,$sql);
                               while($ver=mysqli_fetch_row($result)){
+                                $datos=
+                                     preg_replace('/[\x00-\x1F\x7F]/u', '\n', $ver[0])
+                                     //$ver[0]
+                                     ."||".
+                                     preg_replace('/[\x00-\x1F\x7F]/u', '\n', $ver[1])
+                                     //$ver[0]
+                                     ."||".
+                                     preg_replace('/[\x00-\x1F\x7F]/u', '\n', $ver[2])
+                                     //$ver[0]
+                                     ."||".
+                                     preg_replace('/[\x00-\x1F\x7F]/u', '\n', $ver[3])
+                                     //$ver[0]
+                                     ."||".
+                                     preg_replace('/[\x00-\x1F\x7F]/u', '\n', $ver[5])
+                                     //$ver[0]
+                                     ."||".
+                                     preg_replace('/[\x00-\x1F\x7F]/u', '\n', $ver[6])
+                                     //$ver[18]
+                                     ;
                              ?>
                             <tr>
                               <td scope="row" ><?php echo $ver[0] ?></td>
@@ -64,10 +84,10 @@ $conexion=conexion();
                               <td><?php echo $ver[5] ?></td>
                               <td><?php echo $ver[6] ?></td>
                               <td>
-                                <a href="php/updateproducto.php?id_producto=<?php echo $ver[0];?>" class="btn btn-primary glyphicon glyphicon-eye-open"></a>
+                                <button class="btn btn-info " data-toggle="modal" data-target="#modalEdicion" onclick="agregaform('<?php echo $datos ?>')">Editar</button>
                               </td>
                               <td>
-                                <a href="php/deleteproducto.php?id_producto=<?php echo $ver[0];?>" class="btn btn-danger glyphicon glyphicon-eye-open"></a>
+                                <a href="php/deleteproducto.php?id_producto=<?php echo $ver[0];?>" class="btn btn-danger glyphicon glyphicon-eye-open">Eliminar</a>
                               </td>
                             </tr>
                             <?php
@@ -116,13 +136,76 @@ $conexion=conexion();
             </form>
           </div>
           <div class="modal-footer">
-            <!--button type="submit" id="btnenviar" name ="btnenviar" class="btnenviar btn btn-primary">Registrar</button-->
           </div>
         </div>
       </div>
     </div>
 
-</div>
+    <div class="modal fade"  id="modalEdicion"  tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                    <div class="modal-body">
+                        <form>
+                          <div class="form-group">
+                            <label for=""><h4>Actualizar Producto</h4></label>
+                            <br>
+                            <label style="display:none" for="recipient-name" class="col-form-label">id</label>
+                            <input style="display:none" type="text" required readonly name="id_productox" id="id_productox" class="form-control" >
+                          </div>
 
+                          <div class="form-group">
+                            <label for="recipient-name" class="col-form-label">Nombre</label>
+                            <input type="text" required name="nombreproductox" id="nombreproductox" class="form-control" >
+                          </div>
+                          <div class="form-group">
+                            <label for="message-text" class="col-form-label">Descripción</label>
+                            <input type="text" required name="descripcionproductox" id="descripcionproductox" class="form-control" >
+                          </div>
+
+                        <div class="form-group">
+                          <label for="recipient-name" class="col-form-label">Categoria</label>
+                          <select class="form-control" required name="id_categoriax" id="id_categoriax">
+                            <?php
+                            $sql="SELECT * FROM categorias ";
+                              $result=mysqli_query($conexion,$sql);
+                              while($ver1=mysqli_fetch_row($result)){
+                             ?>
+                            <option value="<?php echo $ver1[0] ?>"><?php echo $ver1[1]," ",$ver1[2] ?></option>
+                          <?php
+                            }
+                          ?>
+                          </select>
+                        </div>
+                        <button type="button" id="btnenviar1" name ="btnenviar1" class="btnenviar1 btn btn-primary">Actualizar</button>
+                        </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
   </body>
 </html>
+
+<script type="text/javascript">
+$(document).ready(function(){
+     $("#btnenviar1").click(function(){
+         var id_productox=$("#id_productox").val();
+         var nombreproductox=$("#nombreproductox").val();
+         var descripcionproductox=$("#descripcionproductox").val();
+         var id_categoriax=$("#id_categoriax").val();
+         $.ajax({
+             url:'php/uptproducto.php',
+             method:'POST',
+             data:{
+                 id_productox:id_productox,
+                 nombreproductox:nombreproductox,
+                 descripcionproductox:descripcionproductox,
+                 id_categoriax:id_categoriax
+             },
+            success:function(data){
+              location.reload();
+            }
+         });
+     });
+ });
+</script>
